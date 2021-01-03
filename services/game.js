@@ -87,7 +87,7 @@ const createGame = (gameDetails, callback) => {
                     if(err) {
                         return callback(err);
                     }
-                    updatedGame[0].cards = cards;
+                    // Return the full game object (when they are redirected to the actual game page, then the cards will be retrieved)
                     callback(null, { data: updatedGame });
                 });
             });
