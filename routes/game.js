@@ -15,7 +15,16 @@ router.get('/:gameId', function(req, res) {
         if(dbres.length === 0) {
             return res.status(404).send({ error: `Could not find Game with ID ${id}` });
         }
-        res.send(dbres);
+        res.send({ data: dbres });
+    })
+});
+
+router.post('/', function(req, res) {
+    GameService.createGame(req.body, (err, dbres) => {
+        if(err) {
+            return res.status(500).send({ error: err });
+        }
+        res.send({ data: dbres });
     })
 });
 
