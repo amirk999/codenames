@@ -42,4 +42,8 @@ const updateColor = (cardDetails, color, callback) => {
     });
 }
 
-module.exports = { createInitialCardList, updateColor };
+const findByGame = (gameId, callback) => {
+    CardModel.findByGame(gameId, callback);
+}
+
+module.exports = { createInitialCardList, updateColor, findByGame };

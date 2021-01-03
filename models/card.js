@@ -6,4 +6,6 @@ const createOne = (cardDetails, callback) => CardDB.createOne(cardDetails, callb
 
 const updateOne = (cardDetails, callback) => CardDB.updateOne(cardDetails, callback);
 
-module.exports = { findByGameIndex, createOne, updateOne };
+const findByGame = (gameId, callback) => CardDB.findByGame(gameId, callback);
+
+module.exports = { findByGameIndex, createOne, updateOne, findByGame };

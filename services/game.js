@@ -13,7 +13,20 @@ const findById = (id, callback) => {
         callback('The ID must be numeric');
         return;
     }
-    GameModel.findById(id, callback);
+    GameModel.findById(id, (err, game) => {
+        if(err) {
+            return callback(err);
+        }
+        if(game && game.length === 1) {
+            CardService.findByGame(game[0].id, (err, cards) => {
+                if(err) {
+                    return callback(err);
+                }
+                game[0].cards = cards;
+                return callback(null, game);
+            })
+        }
+    });
 }
 
 const findByName = (name, callback) => {
