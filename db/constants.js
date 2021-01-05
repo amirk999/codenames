@@ -12,9 +12,9 @@ const Color = {
 }
 
 const GameStatus = {
-    INPROGRESS: 1,
-    REDWON: 2,
-    BLUEWON: 3
+    INPROGRESS: 0,
+    REDWON: 1,
+    BLUEWON: 2
 }
 
 module.exports = { CardStatus, Color, GameStatus };
