@@ -6,6 +6,15 @@ router.get('/', function(req, res) {
     res.send('Hello from game!');
 });
 
+router.post('/', function(req, res) {
+    GameService.createGame(req.body, (err, dbres) => {
+        if(err) {
+            return res.status(500).send({ error: err });
+        }
+        res.send({ data: dbres });
+    })
+});
+
 router.get('/:gameId', function(req, res) {
     const id = parseInt(req.params.gameId);
     GameService.findById(id, (err, dbres) => {
@@ -31,8 +40,8 @@ router.post('/search', function(req, res) {
     })
 });
 
-router.post('/', function(req, res) {
-    GameService.createGame(req.body, (err, dbres) => {
+router.post('/play', function(req, res) {
+    GameService.playCard(req.body, (err, dbres) => {
         if(err) {
             return res.status(500).send({ error: err });
         }

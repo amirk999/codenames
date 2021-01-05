@@ -32,6 +32,7 @@ const createInitialCardList = (gameId, words, callback) => {
     });
 }
 
+// TODO: move to model once it's been reorganized
 const updateColor = (cardDetails, color, callback) => {
     cardDetails.color = color;
     CardModel.updateOne(cardDetails, (err, res) => {
@@ -42,8 +43,22 @@ const updateColor = (cardDetails, color, callback) => {
     });
 }
 
+const updateStatus = (cardDetails, status, callback) => {
+    cardDetails.status = status;
+    CardModel.updateOne(cardDetails, (err, res) => {
+        if(err) {
+            return callback(err);
+        }
+        callback(null, res);
+    })
+}
+
 const findByGame = (gameId, callback) => {
     CardModel.findByGame(gameId, callback);
 }
 
-module.exports = { createInitialCardList, updateColor, findByGame };
+const findByGameIndex = (gameId, index, callback) => {
+    CardModel.findByGameIndex(gameId, index, callback);
+}
+
+module.exports = { createInitialCardList, updateColor, findByGame, findByGameIndex, updateStatus };
