@@ -1,11 +1,33 @@
-const CardDB = require('../db/postgres/card');
+const Model = require('../db/client');
 
-const findByGameIndex = (gameId, index, callback) => CardDB.findByGameIndex(gameId, index, callback);
+class Card extends Model {
+    
+    // Define the table name
+    static get tableName() {
+        return 'cards';
+    }
 
-const createOne = (cardDetails, callback) => CardDB.createOne(cardDetails, callback);
+    // Define the ID column
+    static get idColumn() {
+        return 'id';
+    }
 
-const updateOne = (cardDetails, callback) => CardDB.updateOne(cardDetails, callback);
 
-const findByGame = (gameId, callback) => CardDB.findByGame(gameId, callback);
+    // Define the associations from this model
+    static get relationMappings() {
+        const Game = require('./game');
+        
+        return {
+            game: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Game,
+                join: {
+                    from: 'cards.game_id',
+                    to: 'games.id'
+                }
+            }
+        };
+    }
+}
 
-module.exports = { findByGameIndex, createOne, updateOne, findByGame };
+module.exports = Card;

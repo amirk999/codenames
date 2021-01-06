@@ -1,4 +1,4 @@
-const CardModel = require('../models/card');
+const Card = require('../models/card');
 const Constants = require('../db/constants');
 
 const createInitialCardList = (gameId, words, callback) => {
@@ -6,59 +6,52 @@ const createInitialCardList = (gameId, words, callback) => {
         return callback('Please provide valid data to create the initial list of cards');
     }
 
-    var cardsCreated = 0;
     var cardList = [];
+    var cardsCreated = 0;
 
-    words.forEach((item, index, array) => {
-        // Must use let to handle the scope in the callback
-        let cardDetails = {
-            index: index,
-            body: item.word,
-            color: Constants.Color.GRAY,
-            status: Constants.CardStatus.AVAILABLE,
-            game_id: gameId
-        };
-        
-        CardModel.createOne(cardDetails, (err, res) => {
-            if(err) {
-                return callback(err);
-            }
-            cardsCreated++;
-            cardList.push(res[0]);
-            if(cardsCreated === array.length) {
-                callback(null, cardList);
-            }
-        })
+    // Create cards for each word
+    words.forEach((item, index, array) => {     
+        // Insert the record into the database
+            let cardDetails = {
+                index: index,
+                body: item.word,
+                color: Constants.Color.GRAY,
+                status: Constants.CardStatus.AVAILABLE,
+                game_id: gameId
+            };
+            Card.query()
+                .insert(cardDetails)
+                .returning('*')
+                .then((card) => {
+                    // Add the card details to an array for returning
+                    cardList.push(card);
+                    cardsCreated++;
+                    if(cardsCreated === array.length) {
+                        callback(null, cardList);
+                    }
+                })
+                .catch((err) => callback(err));
     });
 }
 
-// TODO: move to model once it's been reorganized
-const updateColor = (cardDetails, color, callback) => {
-    cardDetails.color = color;
-    CardModel.updateOne(cardDetails, (err, res) => {
-        if(err) {
-            return callback(err);
-        }
-        callback(null, res);
-    });
-}
+const updateAttributes = (cardDetails, newValues, callback) => {
+    // Update the record and return the latest data
+    Card.query()
+        .patch(newValues)
+        .where('id', cardDetails.id)
+        .returning('*')
+        .then((updatedCard) => callback(null, updatedCard))
+        .catch((err) => callback(err));
 
-const updateStatus = (cardDetails, status, callback) => {
-    cardDetails.status = status;
-    CardModel.updateOne(cardDetails, (err, res) => {
-        if(err) {
-            return callback(err);
-        }
-        callback(null, res);
-    })
-}
-
-const findByGame = (gameId, callback) => {
-    CardModel.findByGame(gameId, callback);
 }
 
 const findByGameIndex = (gameId, index, callback) => {
-    CardModel.findByGameIndex(gameId, index, callback);
+    Card.query()
+        .where('game_id', gameId)
+        .where('index', index)
+        .then((card) => callback(null, card[0]))
+        .catch((err) => callback(err));
+        
 }
 
-module.exports = { createInitialCardList, updateColor, findByGame, findByGameIndex, updateStatus };
+module.exports = { createInitialCardList, updateAttributes, findByGameIndex };

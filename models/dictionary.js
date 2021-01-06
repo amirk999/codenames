@@ -1,7 +1,16 @@
-const DictionaryDB = require('../db/postgres/dictionary');
+const Model = require('../db/client');
 
-const findRandom = (numberOfEntries, callback) => {
-    DictionaryDB.findRandom(numberOfEntries, callback);
+class Dictionary extends Model {
+
+    // Define the table name
+    static get tableName() {
+        return 'dictionary';
+    }
+
+    // Define the ID column
+    static get idColumn() {
+        return 'id';
+    }
 }
 
-module.exports = { findRandom };
+module.exports = Dictionary;

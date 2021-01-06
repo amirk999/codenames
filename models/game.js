@@ -1,18 +1,43 @@
-const GameDB = require('../db/postgres/game');
+const Model = require('../db/client');
 
-const findAll = (callback) => GameDB.findAll(callback);
+class Game extends Model {
 
-const findById = (id, callback) => GameDB.findById(id, callback);
-
-const findByName = (name, callback) => GameDB.findByName(name, callback);
-
-const createOne = (gameDetails, callback) => {
-    if(!gameDetails || !gameDetails.name) {
-        return callback('Invalid game data');
+    // Define the table name
+    static get tableName() {
+        return 'games';
     }
-    GameDB.createOne(gameDetails, callback);
+
+    // Define the ID column
+    static get idColumn() {
+        return 'id';
+    }
+
+    redRemaining() {
+        return this.red_remaining;
+    }
+
+    blueRemaining() {
+        return this.blue_remaining;
+    }
+
+    currentTurn() {
+        return this.current_turn;
+    }
+
+    // Define the associations from this model
+    static get relationMappings() {
+        const Card = require('./card');
+        return {
+            cards: {
+                relation: Model.HasManyRelation,
+                modelClass: Card,
+                join: {
+                    from: 'games.id',
+                    to: 'cards.game_id'
+                }
+            }
+        };
+    }
 }
 
-const updateOne = (gameDetails, callback) => GameDB.updateOne(gameDetails, callback);
-
-module.exports = { findAll, findById, findByName, createOne, updateOne };
+module.exports = Game;

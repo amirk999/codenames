@@ -1,21 +1,9 @@
-const { Pool } = require('pg');
+const environment = process.env.NODE_ENV || 'development';
+const knexfile = require('../knexfile')[environment];
 
-// TODO: load default values from database.json (dev)
-const pool = new Pool({
-    user: process.env.PGUSER || "postgres",
-    password: process.env.PGPASSWORD || "dev.123",
-    host: process.env.PGHOST || "localhost",
-    database: process.env.PGDATABASE || "codenames",
-    port: process.env.PGPORT || "5432"
-});
+const db = require('knex')(knexfile);
+const { Model } = require('objection');
 
-const query = (text, params, callback) => {
-    return pool.query(text, params, (err, res) => {
-        if(err) {
-            return callback(err.stack);
-        }
-        callback(null, res.rows);
-    });
-};
+Model.knex(db);
 
-module.exports = { query };
+module.exports = Model;
