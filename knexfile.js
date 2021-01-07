@@ -14,6 +14,17 @@ module.exports = {
     }
   },
 
+  test: {
+    client: 'pg',
+    connection: {
+      user: 'postgres',
+      password: 'dev.123',
+      host: 'localhost',
+      database: 'codenames',
+      port: '5432' 
+    }
+  },
+
   production: {
     client: 'pg',
     connection: {

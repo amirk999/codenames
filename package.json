@@ -2,11 +2,11 @@
   "name": "codenames",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "start.js",
   "scripts": {
     "test": "jest",
-    "nodemon": "nodemon server.js",
-    "pretest": "db-migrate reset --env local && db-migrate up --env local",
+    "nodemon": "nodemon start.js",
+    "pretest": "db-migrate reset --env development && db-migrate up --env development",
     "migrate": "db-migrate up"
   },
   "author": "",

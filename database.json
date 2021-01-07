@@ -1,6 +1,14 @@
 {
-    "defaultEnv": "local",
-    "local": {
+    "defaultEnv": "development",
+    "development": {
+        "driver": "pg",
+        "user": "postgres",
+        "password": "dev.123",
+        "host": "localhost",
+        "database": "codenames",
+        "port": "5432"
+    },
+    "test": {
         "driver": "pg",
         "user": "postgres",
         "password": "dev.123",
