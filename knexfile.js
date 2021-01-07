@@ -1,5 +1,6 @@
 // Update with your config settings.
 
+// TODO: Read values from database.json
 module.exports = {
 
   development: {

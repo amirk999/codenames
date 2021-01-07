@@ -4,7 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "nodemon": "nodemon server.js",
+    "pretest": "db-migrate reset --env local && db-migrate up --env local",
+    "migrate": "db-migrate up"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +20,8 @@
     "pg": "^8.5.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "jest": "^26.6.3",
+    "nodemon": "^2.0.6",
+    "supertest": "^6.0.1"
   }
 }
