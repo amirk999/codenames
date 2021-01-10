@@ -29,69 +29,76 @@ const createGame = (gameDetails, callback) => {
     const teamMax = 9;
     var blackIndex = -1;
 
-    Game.query()
-        .insert(gameDetails)
-        .returning('*')
-        .then((createdGame) => {
-            DictionaryService.findRandom(gameSize, (err, words) => {
-                if(err) {
-                    return callback(err);
-                }
-        
-                CardService.createInitialCardList(createdGame.id, words, (err, cards) => {
+    findByName(gameDetails.name, (err, data) => {
+        if(err) {
+            return callback(err);
+        } else if(data) {
+            return callback('A game with the same name already exists');
+        }
+
+        Game.query()
+            .insert(gameDetails)
+            .returning('*')
+            .then((createdGame) => {
+                DictionaryService.findRandom(gameSize, (err, words) => {
                     if(err) {
                         return callback(err);
                     }
-        
-                    // Randomize the card colors
-                    while(blackIndex < 0) {
-                        // Get a random number between 0 and (gameSize - 1)
-                        let currIndex = Math.floor(Math.random() * gameSize);
-        
-                        // Only update gray cards
-                        if(cards[currIndex].color === Color.GRAY) {
-        
-                            if(createdGame.redRemaining() < teamMax && createdGame.blueRemaining() < teamMax) {
-                                if((currIndex % 2) === 0) {
-                                    // Make the card red
-                                    CardService.updateAttributes(cards[currIndex], { color: Color.RED }, (err, res) => { console.log(err, res)});
+            
+                    CardService.createInitialCardList(createdGame.id, words, (err, cards) => {
+                        if(err) {
+                            return callback(err);
+                        }
+            
+                        // Randomize the card colors
+                        while(blackIndex < 0) {
+                            // Get a random number between 0 and (gameSize - 1)
+                            let currIndex = Math.floor(Math.random() * gameSize);
+            
+                            // Only update gray cards
+                            if(cards[currIndex].color === Color.GRAY) {
+            
+                                if(createdGame.redRemaining() < teamMax && createdGame.blueRemaining() < teamMax) {
+                                    if((currIndex % 2) === 0) {
+                                        // Make the card red
+                                        CardService.updateAttributes(cards[currIndex], { color: Color.RED }, (err, res) => { });
+                                        createdGame.red_remaining++;
+                                    } else {
+                                        // Make the card blue
+                                        CardService.updateAttributes(cards[currIndex], { color: Color.BLUE }, (err, res) => { });
+                                        createdGame.blue_remaining++;
+                                    }
+                                } else if(createdGame.redRemaining() === teamMax && createdGame.blueRemaining() < (teamMax - 1)) {
+                                    // Red is full. Make the card blue
+                                    CardService.updateAttributes(cards[currIndex], { color: Color.BLUE }, (err, res) => { });
+                                    createdGame.blue_remaining++;
+                                } else if(createdGame.redRemaining() < (teamMax - 1) && createdGame.blueRemaining() === teamMax) {
+                                    // Blue is full. Make the card red
+                                    CardService.updateAttributes(cards[currIndex], { color: Color.RED }, (err, res) => { });
                                     createdGame.red_remaining++;
                                 } else {
-                                    // Make the card blue
-                                    CardService.updateAttributes(cards[currIndex], { color: Color.BLUE }, (err, res) => {console.log(err, res)});
-                                    createdGame.blue_remaining++;
+                                    // Both teams have their cards. Make the last card black
+                                    CardService.updateAttributes(cards[currIndex], { color: Color.BLACK }, (err, res) => { });
+                                    blackIndex = currIndex;
                                 }
-                            } else if(createdGame.redRemaining() === teamMax && createdGame.blueRemaining() < (teamMax - 1)) {
-                                // Red is full. Make the card blue
-                                CardService.updateAttributes(cards[currIndex], { color: Color.BLUE }, (err, res) => {console.log(err, res)});
-                                createdGame.blue_remaining++;
-                            } else if(createdGame.redRemaining() < (teamMax - 1) && createdGame.blueRemaining() === teamMax) {
-                                // Blue is full. Make the card red
-                                CardService.updateAttributes(cards[currIndex], { color: Color.RED }, (err, res) => {console.log(err, res)});
-                                createdGame.red_remaining++;
-                            } else {
-                                // Both teams have their cards. Make the last card black
-                                CardService.updateAttributes(cards[currIndex], { color: Color.BLACK }, (err, res) => {console.log(err, res)});
-                                blackIndex = currIndex;
                             }
                         }
-                    }
-        
-                    // Set default starting values based on the card colors
-                    createdGame.current_turn = createdGame.redRemaining() > createdGame.blueRemaining() ? Color.RED : Color.BLUE;
-                    createdGame.status = GameStatus.INPROGRESS;
-        
-                    Game.query()
-                        .findById(createdGame.id)
-                        .patch(createdGame)
-                        .returning('*')
-                        .then((game) => callback(null, game))
-                        .catch((err) => callback(err));
+            
+                        // Set default starting values based on the card colors
+                        createdGame.current_turn = createdGame.redRemaining() > createdGame.blueRemaining() ? Color.RED : Color.BLUE;
+                        createdGame.status = GameStatus.INPROGRESS;
+            
+                        Game.query()
+                            .findById(createdGame.id)
+                            .patch(createdGame)
+                            .returning('*')
+                            .then((game) => callback(null, game))
+                            .catch((err) => callback(err));
+                    });
                 });
-            });
-        })
-        .catch((err) => callback(err));
-    
+            })
+            .catch((err) => callback(err));
+    });
 
 }
 
