@@ -3,9 +3,12 @@ const DictionaryService = require('./dictionary');
 const CardService = require('./card');
 const { Color, GameStatus, CardStatus } = require('../db/constants');
 
-const findById = (id, callback) => {
-    Game.query().findById(id)
-        .then((game) => callback(null, game))
+const findById = async (id, callback) => {
+    const game = await Game.query().findById(id);
+    Game.relatedQuery('cards')
+        .for(game)
+        .orderBy('index')
+        .then((cards) => callback(null, { ...game, cards } ))
         .catch((err) => callback(err));
 }
 
@@ -120,7 +123,7 @@ const playCard = (data, callback) => {
                     return callback('The card cannot be chosen');
                 }
 
-                CardService.updateAttributes(card, { status: CardStatus.REVEALED }, (err, res) => {
+                CardService.updateAttributes(card, { status: CardStatus.REVEALED }, async (err, res) => {
                     if(err) {
                         return callback(err);
                     }
@@ -148,11 +151,14 @@ const playCard = (data, callback) => {
                     }
 
                     // Save the game and return the results
+                    const cards = await Game.relatedQuery('cards')
+                                    .for(game)
+                                    .orderBy('index');
                     Game.query()
                         .findById(game.id)
                         .patch(game)
                         .returning('*')
-                        .then((game) => callback(null, game))
+                        .then((game) => callback(null, { ...game, cards }))
                         .catch((err) => callback(err));
                 });
             });

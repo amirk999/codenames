@@ -54,4 +54,12 @@ const findByGameIndex = (gameId, index, callback) => {
         
 }
 
-module.exports = { createInitialCardList, updateAttributes, findByGameIndex };
+const findByGame = (gameId, callback) => {
+    Card.query()
+        .where('game_id', gameId)
+        .orderBy('index')
+        .then((card) => callback(null, card))
+        .catch((err) => callback(err));
+}
+
+module.exports = { createInitialCardList, updateAttributes, findByGameIndex, findByGame };
